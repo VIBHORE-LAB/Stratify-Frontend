@@ -1,0 +1,151 @@
+import { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Mail, Lock, TrendingUp } from "lucide-react";
+import { Label } from "../components/ui/label";
+
+const LoginPage = () => {
+  const { login, loading, error } = useAuth();
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await login(formData);
+      navigate("/");
+    } catch (err) {
+      console.error("Login failed:", err);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-black to-neutral-900" />
+      <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-green-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-green-500/10 rounded-full blur-3xl" />
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Branding */}
+        <div className="flex items-center justify-center mb-8">
+          <TrendingUp className="h-10 w-10 text-green-400 mr-3" />
+          <span className="text-3xl font-bold text-white tracking-tight">
+            BacktestPro
+          </span>
+        </div>
+
+        <Card className="bg-neutral-900 border border-neutral-800 shadow-xl text-white">
+          <CardHeader className="text-center border-b border-neutral-800">
+            <CardTitle className="text-2xl">Sign In</CardTitle>
+            <CardDescription className="text-neutral-400">
+              Welcome back to BacktestPro
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="pt-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm text-neutral-300">
+                  Email
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-neutral-500" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="pl-10 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm text-neutral-300">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-neutral-500" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="pl-10 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Error */}
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold rounded-md"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 border-2 border-black border-t-transparent rounded-full mr-2" />
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
+              </Button>
+            </form>
+
+            {/* Links */}
+            <div className="mt-6 text-center">
+              <p className="text-neutral-400">
+                Don’t have an account?{" "}
+                <Link to="/register" className="text-green-400 hover:underline">
+                  Sign up
+                </Link>
+              </p>
+            </div>
+
+            <div className="mt-4 text-center">
+              <Link
+                to="/"
+                className="text-neutral-400 hover:text-white text-sm"
+              >
+                ← Back to home
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
