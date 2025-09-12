@@ -34,7 +34,7 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       await login(formData);
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       console.error("Login failed:", err);
     }
@@ -84,7 +84,6 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm text-neutral-300">
                   Password
@@ -103,10 +102,8 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              {/* Error */}
               {error && <p className="text-red-500 text-sm">{error}</p>}
 
-              {/* Submit */}
               <Button
                 type="submit"
                 className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold rounded-md"
@@ -123,7 +120,6 @@ const LoginPage = () => {
               </Button>
             </form>
 
-            {/* Links */}
             <div className="mt-6 text-center">
               <p className="text-neutral-400">
                 Don’t have an account?{" "}

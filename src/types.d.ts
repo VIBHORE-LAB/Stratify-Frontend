@@ -1,7 +1,8 @@
 // types.ts
 export interface Trade {
-  id: number;
+  orderId: string;
   timestamp: string;
+  nav?: string;
   side: "BUY" | "SELL";
   qty: number;
   price: number;
@@ -42,10 +43,10 @@ export interface StrategyResult {
   id: string;
   userId: string;
   strategyId: string;
-  finalNav: number;
-  startingNav: number;
-  pctChange: number;      
-  cash: number;           
+  finalNav: string;
+  startingNav: string;
+  pctChange: number; 
+  cash: string;           
   position: number;
   navFile: string;
   tradesFile: string;
@@ -55,4 +56,16 @@ export interface StrategyResult {
     name: string;
     params: StrategyParams;
   };
+  Trades?: Trade[];
+  winRate? : number;
+}
+export interface Ticker {
+  value: string;
+  label: string;
+}
+
+export interface TickerState {
+  tickers: Ticker[];
+  loading: boolean;
+  error: string | null;
 }

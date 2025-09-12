@@ -29,4 +29,16 @@ export const routesMap: AppRoute[] = [
     element: lazy(() => import("../pages/Dashboard")),
     type: "private",
   },
+
+  {
+    path: "/backtest",
+    element: lazy(() => import("../pages/NewBackTest")),
+    type: "private"
+  },
+
+  {
+    path:"/results",
+    element: lazy(() => import("../pages/Results")),
+    type: "private"
+  }
 ];
