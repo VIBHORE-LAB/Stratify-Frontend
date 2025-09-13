@@ -1,8 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchResultsHistory, getCount, fetchAverageWinRate } from "../../api/resultService";
+import {
+  fetchResultsHistory,
+  getCount,
+  fetchAverageWinRate,
+  fetchResultDetails,
+} from "../../api/resultService";
 import { AxiosError } from "axios";
-import { StrategyResult } from "../../types";
-import { TruckElectric } from "lucide-react";
+import { StrategyResult, Trade } from "../../types";
 
 interface ResultsState {
   results: StrategyResult[];
@@ -10,6 +14,7 @@ interface ResultsState {
   error: string | null;
   averageWinRate?: number;
   bestStrategy?: string;
+  resultDetails?: StrategyResult | null; 
 }
 
 export const resultThunk = createAsyncThunk(
@@ -17,10 +22,12 @@ export const resultThunk = createAsyncThunk(
   async ({ limit, offset }: { limit?: number; offset?: number }, { rejectWithValue }) => {
     try {
       const response = await fetchResultsHistory(limit, offset);
-      return response.data.rows;
+      return response.rows;
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch results history");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch results history"
+      );
     }
   }
 );
@@ -49,17 +56,36 @@ export const averageWinRateThunk = createAsyncThunk(
       };
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch average win rate");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch average win rate"
+      );
     }
   }
 );
 
+// 👇 New thunk for fetching result details
+export const resultDetailsThunk = createAsyncThunk(
+  "results/fetchResultDetails",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await fetchResultDetails(id);
+      return response.data; // this should be a single StrategyResult
+    } catch (err) {
+      const error = err as AxiosError<{ message: string }>;
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch result details"
+      );
+    }
+  }
+);
 
 const initialState: ResultsState = {
   results: [],
   loading: false,
   error: null,
   averageWinRate: undefined,
+  bestStrategy: undefined,
+  resultDetails: null,
 };
 
 const resultsSlice = createSlice({
@@ -68,6 +94,7 @@ const resultsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // --- History ---
       .addCase(resultThunk.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -81,12 +108,12 @@ const resultsSlice = createSlice({
         state.error = (action.payload as string) || "Unknown error";
       })
 
+      // --- Average Win Rate ---
       .addCase(averageWinRateThunk.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(averageWinRateThunk.fulfilled, (state, action) => {
-
         state.loading = false;
         state.averageWinRate = action.payload.averageWinRate;
         state.bestStrategy = action.payload.bestStrategy;
@@ -94,6 +121,22 @@ const resultsSlice = createSlice({
       .addCase(averageWinRateThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = (action.payload as string) || "Unknown error";
+      })
+
+      // --- Result Details ---
+      .addCase(resultDetailsThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.resultDetails = null;
+      })
+      .addCase(resultDetailsThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.resultDetails = action.payload;
+      })
+      .addCase(resultDetailsThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) || "Unknown error";
+        state.resultDetails = null;
       });
   },
 });

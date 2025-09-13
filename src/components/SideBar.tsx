@@ -1,4 +1,4 @@
-import { LogOut, TrendingUp, LayoutDashboard, User } from "lucide-react";
+import { LogOut, TrendingUp, LayoutDashboard, ClipboardClock } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   Sidebar,
@@ -13,7 +13,7 @@ import {
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: <LayoutDashboard /> },
   { title: "Backtester", url: "/backtester", icon: <TrendingUp /> },
-  { title: "Profile", url: "/profile", icon: <User /> },
+  { title: "Results", url: "/results", icon: <ClipboardClock /> },
 ];
 
 export default function CustomSidebar() {

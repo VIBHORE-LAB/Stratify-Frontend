@@ -189,29 +189,29 @@ const payload = {
 
         {/* Result Panel */}
         <div className="lg:col-span-2 space-y-6">
-<ResultPanel
-  result={
-    currentResult
-      ? {
-          ...currentResult,
-          finalNav: String(currentResult.finalNav),
-          startingNav: String(currentResult.startingNav),
-          Strategy: {
-            ...(currentResult.Strategy || {}),
-            params:
-              typeof currentResult.Strategy?.params === "string"
-                ? JSON.parse(currentResult.Strategy.params)
-                : currentResult.Strategy?.params || {},
-          },
-Trades: currentResult.Trades?.map((trade: any) => ({
-  ...trade,
-  nav: trade.nav != null ? Number(trade.nav) : undefined,
-})) || [],
-        }
-      : null
-  }
-  connectionStatus={connectionStatus}
-/>
+    <ResultPanel
+      result={
+        currentResult
+          ? {
+              ...currentResult,
+              finalNav: String(currentResult.finalNav),
+              startingNav: String(currentResult.startingNav),
+              Strategy: {
+                ...(currentResult.Strategy || {}),
+                params:
+                  typeof currentResult.Strategy?.params === "string"
+                    ? JSON.parse(currentResult.Strategy.params)
+                    : currentResult.Strategy?.params || {},
+              },
+    Trades: currentResult.Trades?.map((trade: any) => ({
+      ...trade,
+      nav: trade.nav != null ? Number(trade.nav) : undefined,
+    })) || [],
+            }
+          : null
+      }
+      connectionStatus={connectionStatus}
+    />
 
         </div>
       </div>

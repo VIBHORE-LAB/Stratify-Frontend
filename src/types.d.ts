@@ -51,6 +51,9 @@ export interface StrategyResult {
   navFile: string;
   tradesFile: string;
   createdAt: string;
+  startDate: string;
+  endDate: string;
+  ticker: string;
   updatedAt: string;
   Strategy: {
     name: string;

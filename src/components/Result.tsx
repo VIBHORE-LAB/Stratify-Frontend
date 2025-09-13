@@ -31,7 +31,7 @@ import { Trade, StrategyResult } from "../types";
 import ColorizedLine from "./ColorizedLine";
 
 interface ResultPanelProps {
-  result: StrategyResult | null;
+  result: StrategyResult | any;
   connectionStatus: "connected" | "disconnected" | "reconnecting";
 }
 
@@ -83,18 +83,19 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({
       </Card>
     );
   }
-
+  console.log("result in panel", result);
   const trades: Trade[] = result.Trades || [];
   const start = Number(result.startingNav ?? 100000);
-
+  console.log("trades", trades);
   // ✅ Prepare chart data safely
-  const chartData =
-    trades.length > 0
-      ? trades.map((trade, i) => ({
-          date: `T${i + 1}`,
-          nav: trade.nav != null ? Number(trade.nav) : undefined,
-        }))
-      : [{ date: "T1", nav: start }];
+const chartData = trades.length > 0
+  ? trades.map((trade, i) => ({
+      date: `T${i + 1}`,
+      nav: trade.nav !== undefined && trade.nav !== null
+        ? parseFloat(trade.nav as string)
+        : start,
+    }))
+  : [{ date: "T1", nav: start }];
 
   // ✅ Debug logs
   console.log("Raw trades:", trades);
@@ -151,7 +152,7 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({
               <span className="text-xl text-white">P&L</span>
             </div>
             <p className="text-2xl font-bold text-white">
-              {formatPnL(100, result.pctChange)}
+{formatPnL(Number(result.startingNav), Number(result.finalNav))}
             </p>
           </CardContent>
         </Card>

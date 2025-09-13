@@ -16,43 +16,11 @@ import {
   Calendar,
 } from "lucide-react";
 import { CardSummary } from "../components/CardSummary";
-import { BacktestSummary, StrategyResult } from "../types";
+import {  StrategyResult } from "../types";
 import { useNavigate } from "react-router-dom";
 import { fetchResultsHistory, getCount } from "../api/resultService";
 import { useResults } from "../hooks/useResult";
 // Mock backtests for summary cards
-const mockBacktests: BacktestSummary[] = [
-  {
-    id: "1",
-    strategy: "Momentum",
-    ticker: "AAPL",
-    finalNAV: 112300,
-    totalTrades: 24,
-    winRate: 67.5,
-    pnl: 12300,
-    date: "2023-06-01",
-  },
-  {
-    id: "2",
-    strategy: "RSI",
-    ticker: "MSFT",
-    finalNAV: 107800,
-    totalTrades: 18,
-    winRate: 61.2,
-    pnl: 7800,
-    date: "2023-05-01",
-  },
-  {
-    id: "3",
-    strategy: "MA Crossover",
-    ticker: "GOOGL",
-    finalNAV: 109500,
-    totalTrades: 20,
-    winRate: 64.3,
-    pnl: 9500,
-    date: "2023-04-01",
-  },
-];
 
 interface ResultState {
   results: StrategyResult[];
@@ -153,56 +121,64 @@ console.log("best strategy", bestStrategy)
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-[#0A0A0A] border border-gray-800 hover:border-green-500 transition-colors group">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center">
-              <BarChart3 className="h-4 w-4 mr-2 text-green-500" />
-              Total Backtests
-            </CardTitle>
-            <div className="text-3xl font-bold text-white group-hover:text-green-400 transition-colors">
-              {countState.count}
-            </div>
-          </CardHeader>
-        </Card>
+         {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {countState.count < 2 ? (
+          <Card className="bg-[#0A0A0A] border border-gray-800 text-center p-8 col-span-3">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-green-400">
+                Run your first backtest to get statistics 🚀
+              </CardTitle>
+              <CardDescription className="text-gray-400 mt-2">
+                Once you run more backtests, your dashboard will display 
+                win rates, strategies, and performance insights here.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : (
+          <>
+            <Card className="bg-[#0A0A0A] border border-gray-800 hover:border-green-500 transition-colors group">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-400 flex items-center">
+                  <BarChart3 className="h-4 w-4 mr-2 text-green-500" />
+                  Total Backtests
+                </CardTitle>
+                <div className="text-3xl font-bold text-white group-hover:text-green-400 transition-colors">
+                  {countState.count}
+                </div>
+              </CardHeader>
+            </Card>
 
-        <Card className="bg-[#0A0A0A] border border-gray-800 hover:border-green-500 transition-colors group">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center">
-              <Target className="h-4 w-4 mr-2 text-green-500" />
-              Average Win Rate
-            </CardTitle>
-            <div className="text-3xl font-bold text-white group-hover:text-green-400 transition-colors">
-              {averageWinRate?.toFixed(1)}
-              %
-            </div>
-          </CardHeader>
-        </Card>
+            <Card className="bg-[#0A0A0A] border border-gray-800 hover:border-green-500 transition-colors group">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-400 flex items-center">
+                  <Target className="h-4 w-4 mr-2 text-green-500" />
+                  Average Win Rate
+                </CardTitle>
+                <div className="text-3xl font-bold text-white group-hover:text-green-400 transition-colors">
+                  {averageWinRate?.toFixed(1)}%
+                </div>
+              </CardHeader>
+            </Card>
 
-        <Card className="bg-[#0A0A0A] border border-gray-800 hover:border-green-500 transition-colors group">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center">
-              <TrendingUp className="h-4 w-4 mr-2 text-green-500" />
-              Best Strategy
-            </CardTitle>
-            <div className="text-3xl font-bold text-white group-hover:text-green-400 transition-colors">
-{bestStrategy ? bestStrategy.charAt(0).toUpperCase() + bestStrategy.slice(1) : "N/A"}
-            </div>
-          </CardHeader>
-        </Card>
-
-        <Card className="bg-[#0A0A0A] border border-gray-800 hover:border-green-500 transition-colors group">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center">
-              <Calendar className="h-4 w-4 mr-2 text-green-500" />
-              Total Trades
-            </CardTitle>
-            <div className="text-3xl font-bold text-white group-hover:text-green-400 transition-colors">
-              {mockBacktests.reduce((acc, bt) => acc + bt.totalTrades, 0)}
-            </div>
-          </CardHeader>
-        </Card>
+            <Card className="bg-[#0A0A0A] border border-gray-800 hover:border-green-500 transition-colors group">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-400 flex items-center">
+                  <TrendingUp className="h-4 w-4 mr-2 text-green-500" />
+                  Best Strategy
+                </CardTitle>
+                <div className="text-3xl font-bold text-white group-hover:text-green-400 transition-colors">
+                  {bestStrategy
+                    ? bestStrategy.charAt(0).toUpperCase() +
+                      bestStrategy.slice(1)
+                    : "N/A"}
+                </div>
+              </CardHeader>
+            </Card>
+          </>
+        )}
       </div>
+
 
       {/* Recent Backtests */}
       <div>
