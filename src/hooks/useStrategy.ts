@@ -40,13 +40,15 @@ export function useStrategy(userId: string | null) {
   useEffect(() => {
     if (!userId) return;
 
- const socket = io("https://stratify-backend-etsq.onrender.com", {
+const socket = io("https://stratify-backend-etsq.onrender.com", {
   autoConnect: true,
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
-  transports: ["websocket"],
+  transports: ["websocket", "polling"], 
+  withCredentials: true,
 });
+
 
     socketRef.current = socket;
 
