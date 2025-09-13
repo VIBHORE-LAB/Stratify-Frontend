@@ -51,7 +51,7 @@ const LoginPage = () => {
         <div className="flex items-center justify-center mb-8">
           <TrendingUp className="h-10 w-10 text-green-400 mr-3" />
           <span className="text-3xl font-bold text-white tracking-tight">
-            BacktestPro
+            Stratify
           </span>
         </div>
 
