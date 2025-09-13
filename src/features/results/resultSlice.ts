@@ -1,13 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchResultsHistory, getCount } from "../../api/resultService";
+import { fetchResultsHistory, getCount, fetchAverageWinRate } from "../../api/resultService";
 import { AxiosError } from "axios";
 import { StrategyResult } from "../../types";
+import { TruckElectric } from "lucide-react";
 
 interface ResultsState {
   results: StrategyResult[];
   loading: boolean;
   error: string | null;
+  averageWinRate?: number;
+  bestStrategy?: string;
 }
+
 export const resultThunk = createAsyncThunk(
   "results/fetchHistory",
   async ({ limit, offset }: { limit?: number; offset?: number }, { rejectWithValue }) => {
@@ -20,7 +24,6 @@ export const resultThunk = createAsyncThunk(
     }
   }
 );
-
 
 export const countThunk = createAsyncThunk(
   "results/getcount",
@@ -35,11 +38,28 @@ export const countThunk = createAsyncThunk(
   }
 );
 
+export const averageWinRateThunk = createAsyncThunk(
+  "results/fetchAverageWinRate",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetchAverageWinRate();
+      return {
+        averageWinRate: response.averageWinRate,
+        bestStrategy: response.bestStrategy,
+      };
+    } catch (err) {
+      const error = err as AxiosError<{ message: string }>;
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch average win rate");
+    }
+  }
+);
+
 
 const initialState: ResultsState = {
   results: [],
   loading: false,
   error: null,
+  averageWinRate: undefined,
 };
 
 const resultsSlice = createSlice({
@@ -58,7 +78,22 @@ const resultsSlice = createSlice({
       })
       .addCase(resultThunk.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || "Unknown error";
+        state.error = (action.payload as string) || "Unknown error";
+      })
+
+      .addCase(averageWinRateThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(averageWinRateThunk.fulfilled, (state, action) => {
+
+        state.loading = false;
+        state.averageWinRate = action.payload.averageWinRate;
+        state.bestStrategy = action.payload.bestStrategy;
+      })
+      .addCase(averageWinRateThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) || "Unknown error";
       });
   },
 });

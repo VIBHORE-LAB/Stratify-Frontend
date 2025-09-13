@@ -19,7 +19,7 @@ import { CardSummary } from "../components/CardSummary";
 import { BacktestSummary, StrategyResult } from "../types";
 import { useNavigate } from "react-router-dom";
 import { fetchResultsHistory, getCount } from "../api/resultService";
-
+import { useResults } from "../hooks/useResult";
 // Mock backtests for summary cards
 const mockBacktests: BacktestSummary[] = [
   {
@@ -79,6 +79,12 @@ const DashboardPage = () => {
     error: null,
   })
 
+  const {averageWinRate, fetchAverageWinRate,bestStrategy} = useResults();
+useEffect(() => {
+  fetchAverageWinRate();
+}, [fetchAverageWinRate]);
+console.log("average", averageWinRate)
+console.log("best strategy", bestStrategy)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -167,10 +173,7 @@ const DashboardPage = () => {
               Average Win Rate
             </CardTitle>
             <div className="text-3xl font-bold text-white group-hover:text-green-400 transition-colors">
-              {(
-                mockBacktests.reduce((acc, bt) => acc + bt.winRate, 0) /
-                mockBacktests.length
-              ).toFixed(1)}
+              {averageWinRate?.toFixed(1)}
               %
             </div>
           </CardHeader>
@@ -183,7 +186,7 @@ const DashboardPage = () => {
               Best Strategy
             </CardTitle>
             <div className="text-3xl font-bold text-white group-hover:text-green-400 transition-colors">
-              Momentum
+{bestStrategy ? bestStrategy.charAt(0).toUpperCase() + bestStrategy.slice(1) : "N/A"}
             </div>
           </CardHeader>
         </Card>
@@ -227,7 +230,7 @@ const DashboardPage = () => {
               >
                 <CardHeader>
                   <CardTitle className="text-lg text-white">
-                    {bt.Strategy?.name ?? "Unknown"}
+                    {bt.Strategy?.name.charAt(0).toUpperCase() + bt.Strategy?.name.slice(1) || "Unknown"}
                   </CardTitle>
                   <CardDescription className="text-gray-400">
                     {bt.createdAt

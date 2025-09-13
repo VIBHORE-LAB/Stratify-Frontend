@@ -21,3 +21,8 @@ export async function getLatest() {
   const res = await axiosClient.get("/results/latest"); 
   return res.data; 
 }
+
+export async function fetchAverageWinRate(){
+  const res = await axiosClient.get("/results/averageWinRate");
+  return res.data;
+}
