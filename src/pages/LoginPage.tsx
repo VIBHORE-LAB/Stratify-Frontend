@@ -59,7 +59,7 @@ const LoginPage = () => {
           <CardHeader className="text-center border-b border-neutral-800">
             <CardTitle className="text-2xl">Sign In</CardTitle>
             <CardDescription className="text-neutral-400">
-              Welcome back to BacktestPro
+              Welcome back to Stratify
             </CardDescription>
           </CardHeader>
 
