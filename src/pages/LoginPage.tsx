@@ -29,8 +29,6 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("token");
     e.preventDefault();
     try {
       const result = await login(formData);
