@@ -16,6 +16,8 @@ import { useTickers } from "../hooks/useTickers";
 import ResultPanel from "../components/Result";
 import { useStrategy } from "../hooks/useStrategy";
 import { useAppDispatch } from "../app/hooks";
+import { format } from "date-fns";
+
 import { runStrategyThunk, setLoading } from "../features/strategy/backtestSlice";
 import { useUserId } from "../hooks/useUserId";
 const strategies = [
@@ -49,7 +51,8 @@ const { currentResult, loading, error: backtestError, connectionStatus } = useSt
 
   const runBacktest = async () => {
     if (!selectedTicker || !strategy || !startDate || !endDate) return;
-const formatDate = (date?: Date) => date ? date.toISOString().split("T")[0] : "";
+const formatDate = (date?: Date) => 
+  date ? format(date, "yyyy-MM-dd") : "";
 const payload = {
   ticker: selectedTicker,
   strategyName: strategy,
