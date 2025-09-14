@@ -36,6 +36,7 @@ interface ResultPanelProps {
 }
 
 const formatPnL = (start: number, end: number) => {
+  console.log("start", start, "end", end);
   const diff = end - start;
   const sign = diff >= 0 ? "+" : "-";
   return `${sign}$${Math.abs(diff).toLocaleString()}`;
@@ -56,12 +57,12 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({
             <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <CardTitle className="text-lg text-foreground mb-2">
               {connectionStatus === "disconnected"
-                ? "Disconnected from Server"
+                ? "Run your backtest"
                 : "Reconnecting..."}
             </CardTitle>
             <CardDescription className="mb-6">
               {connectionStatus === "disconnected"
-                ? "Lost connection to the server. Please check your network or try again later."
+                ? "Go ahead and configure your strategy parameters, then click 'Run Backtest' to see results here."
                 : "Attempting to reconnect to the server..."}
             </CardDescription>
           </CardContent>
@@ -85,9 +86,7 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({
   }
   console.log("result in panel", result);
   const trades: Trade[] = result.Trades || [];
-  const start = Number(result.startingNav ?? 100000);
-  console.log("trades", trades);
-  // ✅ Prepare chart data safely
+  const start =  100000;
 const chartData = trades.length > 0
   ? trades.map((trade, i) => ({
       date: `T${i + 1}`,
@@ -97,7 +96,6 @@ const chartData = trades.length > 0
     }))
   : [{ date: "T1", nav: start }];
 
-  // ✅ Debug logs
   console.log("Raw trades:", trades);
   console.log(
     "Chart data for LineChart:",
@@ -106,7 +104,6 @@ const chartData = trades.length > 0
 
   return (
     <div>
-      {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card className="trading-card-hover border-border/50 bg-[#0f0f0f] group">
           <CardContent className="p-4 text-white">
@@ -148,11 +145,15 @@ const chartData = trades.length > 0
         <Card className="border-border/50 bg-[#0f0f0f]">
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-6 w-6 text-green-600 text-trading-profit" />
+              {result.finalNav >= start ? (
+                <DollarSign className="h-6 w-6 text-green-600 text-trading-profit" />
+              ) : (
+                <DollarSign className="h-6 w-6 text-red-600 text-trading-loss" />
+              )}
               <span className="text-xl text-white">P&L</span>
             </div>
             <p className="text-2xl font-bold text-white">
-{formatPnL(Number(result.startingNav), Number(result.finalNav))}
+{formatPnL(start, Number(result.finalNav))}
             </p>
           </CardContent>
         </Card>

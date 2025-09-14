@@ -34,7 +34,7 @@ const Register = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-        localStorage.removeItem("userId");
+    localStorage.removeItem("userId");
     localStorage.removeItem("token");
 
     e.preventDefault();
