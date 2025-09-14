@@ -13,14 +13,13 @@ import {
   Play,
   Target,
   TrendingUp,
-  Calendar,
 } from "lucide-react";
 import { CardSummary } from "../components/CardSummary";
-import {  StrategyResult } from "../types";
+import { StrategyResult } from "../types";
 import { useNavigate } from "react-router-dom";
 import { fetchResultsHistory, getCount } from "../api/resultService";
 import { useResults } from "../hooks/useResult";
-// Mock backtests for summary cards
+import Loader from "../components/Loader";
 
 interface ResultState {
   results: StrategyResult[];
@@ -28,10 +27,10 @@ interface ResultState {
   error: string | null;
 }
 
-interface CountState{
-    count: number;
-    loading: boolean;
-    error: string | null;
+interface CountState {
+  count: number;
+  loading: boolean;
+  error: string | null;
 }
 
 const DashboardPage = () => {
@@ -45,61 +44,60 @@ const DashboardPage = () => {
     count: 0,
     loading: false,
     error: null,
-  })
+  });
 
-  const {averageWinRate, fetchAverageWinRate,bestStrategy} = useResults();
-useEffect(() => {
-  fetchAverageWinRate();
-}, [fetchAverageWinRate]);
-console.log("average", averageWinRate)
-console.log("best strategy", bestStrategy)
+  const { averageWinRate, fetchAverageWinRate, bestStrategy } = useResults();
+
+  useEffect(() => {
+    fetchAverageWinRate();
+  }, [fetchAverageWinRate]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const loadResults = async () => {
-      setResultState(prev => ({ ...prev, loading: true, error: null }));
+      setResultState((prev) => ({ ...prev, loading: true, error: null }));
       try {
         const data = await fetchResultsHistory(5, 0);
-        setResultState(prev => ({ ...prev, results: data.rows }));
+        setResultState((prev) => ({ ...prev, results: data.rows }));
       } catch (err: unknown) {
         if (err instanceof Error) {
-          setResultState(prev => ({ ...prev, error: err.message }));
+          setResultState((prev) => ({ ...prev, error: err.message }));
         } else {
-          setResultState(prev => ({ ...prev, error: "Failed to fetch results" }));
+          setResultState((prev) => ({
+            ...prev,
+            error: "Failed to fetch results",
+          }));
         }
       } finally {
-        setResultState(prev => ({ ...prev, loading: false }));
+        setResultState((prev) => ({ ...prev, loading: false }));
       }
     };
 
     loadResults();
   }, []);
 
-
   useEffect(() => {
     const loadCount = async () => {
-      setCountState(prev => ({ ...prev, loading: true, error: null }));
+      setCountState((prev) => ({ ...prev, loading: true, error: null }));
       try {
         const data = await getCount();
-        setCountState(prev => ({ ...prev, count: data.totalBacktests }));
+        setCountState((prev) => ({ ...prev, count: data.totalBacktests }));
       } catch (err: unknown) {
         if (err instanceof Error) {
-          setCountState(prev => ({ ...prev, error: err.message }));
+          setCountState((prev) => ({ ...prev, error: err.message }));
         } else {
-          setCountState(prev => ({ ...prev, error: "Failed to fetch count" }));
+          setCountState((prev) => ({
+            ...prev,
+            error: "Failed to fetch count",
+          }));
         }
       } finally {
-        setCountState(prev => ({ ...prev, loading: false }));
+        setCountState((prev) => ({ ...prev, loading: false }));
       }
     };
     loadCount();
   }, []);
-
-
-
-
-  console.log("count state", countState);
-  console.log("Results State:", resultState);
 
   return (
     <div className="flex-1 p-6 space-y-8 bg-black text-gray-200 min-h-screen">
@@ -121,21 +119,27 @@ console.log("best strategy", bestStrategy)
       </div>
 
       {/* Summary Cards */}
-         {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {countState.count < 2 ? (
+        {countState.loading || resultState.loading ? (
+          // Loader while APIs are fetching
+          <div className="col-span-3 flex justify-center items-center py-12">
+            <Loader />
+          </div>
+        ) : countState.count < 2 ? (
+          // First backtest card
           <Card className="bg-[#0A0A0A] border border-gray-800 text-center p-8 col-span-3">
             <CardHeader>
               <CardTitle className="text-xl font-bold text-green-400">
                 Run your first backtest to get statistics 🚀
               </CardTitle>
               <CardDescription className="text-gray-400 mt-2">
-                Once you run more backtests, your dashboard will display 
-                win rates, strategies, and performance insights here.
+                Once you run more backtests, your dashboard will display win
+                rates, strategies, and performance insights here.
               </CardDescription>
             </CardHeader>
           </Card>
         ) : (
+          // Summary cards
           <>
             <Card className="bg-[#0A0A0A] border border-gray-800 hover:border-green-500 transition-colors group">
               <CardHeader className="pb-3">
@@ -179,67 +183,71 @@ console.log("best strategy", bestStrategy)
         )}
       </div>
 
-
       {/* Recent Backtests */}
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-green-400">
-            Recent Backtests
-          </h2>
-          <div className="flex items-center space-x-2 text-sm text-gray-400">
-            <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span>Live Data</span>
+      {!(countState.loading || resultState.loading) && countState.count >= 2 && (
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-green-400">
+              Recent Backtests
+            </h2>
+            <div className="flex items-center space-x-2 text-sm text-gray-400">
+              <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Live Data</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {resultState.results.map((bt, idx) => {
+              const finalNav = Number(bt.finalNav ?? 0);
+              const pctChange = Number(bt.pctChange ?? 0);
+              const isProfit = pctChange >= 0;
+
+              return (
+                <Card
+                  key={bt.id}
+                  className="bg-[#0A0A0A] border border-gray-800 hover:border-green-700 transition-colors group animate-fade-in"
+                  style={{ animationDelay: `${idx * 100}ms` }}
+                >
+                  <CardHeader>
+                    <CardTitle className="text-lg text-white">
+                      {bt.Strategy?.name
+                        ? bt.Strategy.name.charAt(0).toUpperCase() +
+                          bt.Strategy.name.slice(1)
+                        : "Unknown"}
+                    </CardTitle>
+                    <CardDescription className="text-gray-400">
+                      {bt.createdAt
+                        ? new Date(bt.createdAt).toLocaleDateString()
+                        : "N/A"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <CardSummary
+                      title="Final NAV"
+                      value={`$${finalNav.toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })}`}
+                      icon={<DollarSign className="h-4 w-4 text-green-500" />}
+                    />
+                    <CardSummary
+                      title="P&L"
+                      value={`${pctChange.toFixed(2)}%`}
+                      icon={
+                        <BarChart3
+                          className={`h-4 w-4 ${
+                            isProfit ? "text-green-500" : "text-red-500"
+                          }`}
+                        />
+                      }
+                      variant={isProfit ? "profit" : "loss"}
+                    />
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {resultState.results.map((bt, idx) => {
-            const finalNav = Number(bt.finalNav ?? 0);
-            const pctChange = Number(bt.pctChange ?? 0);
-            const isProfit = pctChange >= 0;
-
-            return (
-              <Card
-                key={bt.id}
-                className="bg-[#0A0A0A] border border-gray-800 hover:border-green-700 transition-colors group animate-fade-in"
-                style={{ animationDelay: `${idx * 100}ms` }}
-              >
-                <CardHeader>
-                  <CardTitle className="text-lg text-white">
-                    {bt.Strategy?.name.charAt(0).toUpperCase() + bt.Strategy?.name.slice(1) || "Unknown"}
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    {bt.createdAt
-                      ? new Date(bt.createdAt).toLocaleDateString()
-                      : "N/A"}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <CardSummary
-                    title="Final NAV"
-                    value={`$${finalNav.toLocaleString(undefined, {
-                      maximumFractionDigits: 2,
-                    })}`}
-                    icon={<DollarSign className="h-4 w-4 text-green-500" />}
-                  />
-                  <CardSummary
-                    title="P&L"
-                    value={`${pctChange.toFixed(2)}%`}
-                    icon={
-                      <BarChart3
-                        className={`h-4 w-4 ${
-                          isProfit ? "text-green-500" : "text-red-500"
-                        }`}
-                      />
-                    }
-                    variant={isProfit ? "profit" : "loss"}
-                  />
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
+      )}
     </div>
   );
 };

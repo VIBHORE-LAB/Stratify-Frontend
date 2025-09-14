@@ -12,7 +12,7 @@ import {
 import { Input } from "../components/ui/input";
 import { TrendingUp, User, Mail, Lock } from "lucide-react";
 import { Label } from "../components/ui/label";
-import { toast } from "sonner"; // ✅ import sonner toast
+import { toast } from "sonner"; 
 
 const Register = () => {
   const { register, loading } = useAuth();
@@ -34,8 +34,6 @@ const Register = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("token");
 
     e.preventDefault();
 
@@ -57,7 +55,10 @@ const Register = () => {
         toast.success("Account created!", {
           description: "Redirecting you to the dashboard...",
         });
-        navigate("/dashboard");
+        setTimeout(()=>{
+                  navigate("/dashboard");
+
+        }, 1500);
       } else {
         toast.error("Registration failed", {
           description: result.payload || "Something went wrong.",

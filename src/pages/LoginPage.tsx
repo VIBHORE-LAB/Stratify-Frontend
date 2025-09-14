@@ -37,7 +37,11 @@ const LoginPage = () => {
       
       if (result.meta.requestStatus === "fulfilled") {
         toast.success("Login successful ✅");
-        navigate("/dashboard");
+          setTimeout(()=>{
+                  navigate("/dashboard");
+
+        }, 1500);
+
       } else {
         toast.error(result.payload || "Invalid credentials. Please try again.");
       }
