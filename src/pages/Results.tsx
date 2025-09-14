@@ -5,7 +5,7 @@ import Loader from "../components/Loader";
 import { useResults } from "../hooks/useResult";
 import { Button } from "../components/ui/button";
 import { Trade } from "../types";
-
+import { useSonner } from "sonner";
 const capitalize = (s?: string) =>
   s ? s.charAt(0).toUpperCase() + s.slice(1) : "Unknown";
 

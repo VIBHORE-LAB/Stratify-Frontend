@@ -37,23 +37,29 @@ export const registerThunk = createAsyncThunk(
 );
 
 
-export const loginThunk = createAsyncThunk("auth/login", 
-    async(payload: LoginPayload, {rejectWithValue}) =>{
-        try{
-            return await loginUser(payload);
+export const loginThunk = createAsyncThunk(
+  "auth/login",
+  async (payload: LoginPayload, { rejectWithValue }) => {
+    try {
+      return await loginUser(payload);
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
+          return rejectWithValue("Invalid Credentials");
         }
 
-        catch(err: unknown){
-            if(err instanceof AxiosError){
-                return rejectWithValue(err.response?.data || err.message);
-            }
+        return rejectWithValue(err.response?.data || err.message);
+      }
 
-            if(err instanceof Error){
-                return rejectWithValue(err.message);
-            }
-            return rejectWithValue("An unkown error occured");
-        }
-    })
+      if (err instanceof Error) {
+        return rejectWithValue(err.message);
+      }
+
+      return rejectWithValue("An unknown error occurred");
+    }
+  }
+);
+
 
 
 const authSlice = createSlice({

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -12,15 +12,17 @@ import {
 import { Input } from "../components/ui/input";
 import { Mail, Lock, TrendingUp } from "lucide-react";
 import { Label } from "../components/ui/label";
+import { toast } from "sonner"; 
 
 const LoginPage = () => {
-  const { login, loading, error } = useAuth();
+  const { login, loading, logoutUser } = useAuth();
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  useEffect(() => {
+    localStorage.removeItem("token");
+    logoutUser();
+  }, [logoutUser]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -33,9 +35,16 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(formData);
-      navigate("/dashboard");
+      const result = await login(formData);
+
+      if (result.meta.requestStatus === "fulfilled") {
+        toast.success("Login successful ✅");
+        navigate("/dashboard");
+      } else {
+        toast.error(result.payload || "Invalid credentials. Please try again.");
+      }
     } catch (err) {
+      toast.error("Something went wrong. Please try again later.");
       console.error("Login failed:", err);
     }
   };
@@ -84,6 +93,7 @@ const LoginPage = () => {
                 </div>
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm text-neutral-300">
                   Password
@@ -101,8 +111,6 @@ const LoginPage = () => {
                   />
                 </div>
               </div>
-
-              {error && <p className="text-red-500 text-sm">{error}</p>}
 
               <Button
                 type="submit"

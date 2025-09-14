@@ -12,9 +12,10 @@ import {
 import { Input } from "../components/ui/input";
 import { TrendingUp, User, Mail, Lock } from "lucide-react";
 import { Label } from "../components/ui/label";
+import { toast } from "sonner"; // ✅ import sonner toast
 
 const Register = () => {
-  const { register, loading, error } = useAuth();
+  const { register, loading } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -23,8 +24,6 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
-
-  const [localError, setLocalError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -38,20 +37,33 @@ const Register = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setLocalError("Passwords do not match");
+      toast.error("Passwords do not match", {
+        description: "Please re-enter matching passwords.",
+      });
       return;
     }
 
-    setLocalError(null);
-
     try {
-      await register({
+      const result = await register({
         name: formData.name,
         email: formData.email,
         password: formData.password,
       });
-      navigate("/dashboard");
+
+      if (result.meta.requestStatus === "fulfilled") {
+        toast.success("Account created!", {
+          description: "Redirecting you to the dashboard...",
+        });
+        navigate("/dashboard");
+      } else {
+        toast.error("Registration failed", {
+          description: result.payload || "Something went wrong.",
+        });
+      }
     } catch (err) {
+      toast.error("Error", {
+        description: "Unexpected error occurred. Please try again later.",
+      });
       console.error("Register failed:", err);
     }
   };
@@ -63,6 +75,7 @@ const Register = () => {
       <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-green-500/10 rounded-full blur-3xl" />
 
       <div className="w-full max-w-md relative z-10">
+        {/* Branding */}
         <div className="flex items-center justify-center mb-8">
           <TrendingUp className="h-10 w-10 text-green-400 mr-3" />
           <span className="text-3xl font-bold text-white tracking-tight">
@@ -80,6 +93,7 @@ const Register = () => {
 
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Name */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm text-neutral-300">
                   Name
@@ -98,6 +112,7 @@ const Register = () => {
                 </div>
               </div>
 
+              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm text-neutral-300">
                   Email
@@ -156,11 +171,6 @@ const Register = () => {
                   />
                 </div>
               </div>
-
-              {localError && (
-                <p className="text-red-500 text-sm">{localError}</p>
-              )}
-              {error && <p className="text-red-500 text-sm">{error}</p>}
 
               <Button
                 type="submit"
