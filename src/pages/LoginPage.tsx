@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -15,14 +15,10 @@ import { Label } from "../components/ui/label";
 import { toast } from "sonner"; 
 
 const LoginPage = () => {
-  const { login, loading, logoutUser } = useAuth();
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-  useEffect(() => {
-    localStorage.removeItem("token");
-    logoutUser();
-  }, [logoutUser]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -33,10 +29,12 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
     e.preventDefault();
     try {
       const result = await login(formData);
-
+      
       if (result.meta.requestStatus === "fulfilled") {
         toast.success("Login successful ✅");
         navigate("/dashboard");

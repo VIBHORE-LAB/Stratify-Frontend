@@ -14,11 +14,9 @@ import { SelectInput } from "../components/SelectInput";
 import { StrategyParamsForm } from "../components/StrategyParamsForm";
 import { useTickers } from "../hooks/useTickers";
 import ResultPanel from "../components/Result";
-// import { StrategyResult } from "../types";
 import { useStrategy } from "../hooks/useStrategy";
 import { useAppDispatch } from "../app/hooks";
 import { runStrategyThunk, setLoading } from "../features/strategy/backtestSlice";
-// import { Trade } from "../types";
 import { useUserId } from "../hooks/useUserId";
 const strategies = [
   { value: "momentum", label: "Momentum" },
